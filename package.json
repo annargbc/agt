@@ -1,0 +1,55 @@
+{
+  "name": "rgbcodeio",
+  "version": "1.0.0",
+  "description": "Sync Asana and Github",
+  "main": "index.js",
+  "scripts": {
+    "tunnel": "ssh -R rgbcodeio.serveo.net:80:localhost:8000 serveo.net",
+    "setup-custom-fields": "babel-node src/tasks/setupCustomFields.js",
+    "list-hooks": "babel-node src/tasks/getHooks.js",
+    "setup-asana-hooks": "babel-node src/tasks/setupAsanaHooks.js",
+    "setup-github-hooks": "babel-node src/tasks/setupGithubHooks.js",
+    "setup": "setup-tags && setup-hooks",
+    "dev": "nodemon --exec babel-node src/server.js",
+    "clean": "rm -rf build && mkdir build",
+    "build-babel": "babel -d ./build ./src -s",
+    "build": "npm run clean && npm run build-babel",
+    "start": "npm run build && node ./build/server.js",
+    "console": "babel-node src/console.js"
+  },
+  "author": "John Kueh",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-config-react-app": "^3.0.7",
+    "eslint-plugin-flowtype": "^2.50.3",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-react": "^7.12.4",
+    "nodemon": "^1.18.10",
+    "prettier": "^1.16.4"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "@octokit/rest": "^16.17.0",
+    "asana": "^0.16.6",
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.1.0",
+    "express": "^4.16.4",
+    "lodash": "^4.17.11",
+    "pg": "^7.8.0",
+    "pg-hstore": "^2.3.2"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "store.json"
+    ]
+  }
+}
