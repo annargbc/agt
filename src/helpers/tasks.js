@@ -1,5 +1,3 @@
-export const findSomething = () => {};
-
 export const findTaskId = string => {
   const match = string.match(/\[(.+?)\]/);
   if (match) {

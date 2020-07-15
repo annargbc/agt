@@ -5,21 +5,6 @@ import { findTaskId } from '../helpers/tasks';
 
 export const client = Asana.Client.create().useAccessToken(process.env.ASANA_PATOKEN);
 
-export const getMe = async () => {
-  const user = await client.users.me();
-  console.log(user);
-};
-
-export const getWorkspace = async () => {
-  const workspace = await client.workspaces.findById(process.env.ASANA_WORKSPACE_ID);
-  console.log(workspace);
-};
-
-export const getCustomFields = async () => {
-  const fields = await client.customFields.findByWorkspace(process.env.ASANA_WORKSPACE_ID);
-  console.log(fields.data.length);
-};
-
 export const setupCustomFields = async () => {
   const field = await client.customFields.create({
     workspace: process.env.ASANA_WORKSPACE_ID,
@@ -99,15 +84,11 @@ export const setCurrentTaskId = async number => {
 
 // Handling hooks
 export const handleHooks = async req => {
-  // console.log('--- Incoming Asana webhook ---');
   const body = JSON.parse(req.body);
-  // const res = await client.tags.findByWorkspace(process.env.ASANA_WORKSPACE_ID);
-  // const draftTag = _.find(res.data, { name: 'Draft' });
-
   let number = await getCurrentTaskId();
 
   _.each(body.events, (event, i) => {
-    const { user, created_at: createdAt, action, resource = {}, parent = {} } = event;
+    const { action, resource = {}, parent = {} } = event;
     if (resource && parent) {
       const { gid, resource_type: resourceType } = resource;
       const { resource_type: parentResourceType } = parent;
@@ -118,15 +99,11 @@ export const handleHooks = async req => {
           gid,
           number
         });
-        // client.tasks.addTag(gid, {
-        //   tag: draftTag.gid
-        // });
       }
     }
   });
 
   setCurrentTaskId(number);
-  // console.log('--- End Asana webhook ---');
 };
 
 export const getCustomField = async customFields => {
@@ -140,19 +117,15 @@ export const getCustomFieldOption = ({ name, field }) => {
 
 export const handleTaskCreated = async ({ gid, number }) => {
   const task = await getTask(gid);
-  const { name, followers } = task;
-
-  const users = process.env.ASANA_ACTIVE_USERS.split(', ');
-  const followerNames = _.map(followers, 'name');
-  // const activeFollowers = _.intersection(users, followerNames);
+  const { name } = task;
 
   const updatedName = `[${process.env.ASANA_PROJECT_PREFIX}-${number}] ${name}`;
+
   const field = _.find(task.custom_fields, { name: process.env.ASANA_CUSTOM_FIELD_NAME });
   const { enum_options: enumOptions, enum_value: enumValue, gid: customFieldGid } = field;
   const draftOption = _.find(enumOptions, { name: 'Draft' });
   const taskId = findTaskId(name);
 
-  // if (!taskId && !_.isEmpty(activeFollowers)) {
   if (!taskId) {
     await client.tasks.update(gid, {
       name: updatedName,

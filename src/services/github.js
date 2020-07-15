@@ -15,14 +15,6 @@ const octokit = new Octokit({
   auth: `token ${process.env.GITHUB_PATOKEN}`
 });
 
-export const listHooks = async () => {
-  const data = await octokit.repos.listHooks({
-    owner: process.env.GITHUB_OWNER_NAME,
-    repo: process.env.GITHUB_REPO_NAME
-  });
-  console.log(data);
-};
-
 export const listCommits = async number => {
   const res = await octokit.pulls.listCommits({
     owner: process.env.GITHUB_OWNER_NAME,
@@ -37,14 +29,12 @@ export const createHook = async () => {
     owner: process.env.GITHUB_OWNER_NAME,
     repo: process.env.GITHUB_REPO_NAME,
     config: {
-      content_type: 'application/json',
+      content_type: 'json',
       url: `${process.env.BASE_URL}/webhooks/github`,
       secret: process.env.GITHUB_WEBHOOK_SECRET
     },
     events: ['push', 'pull_request', 'pull_request_review', 'deployment_status']
   });
-
-  console.log(result);
 };
 
 const findTaskId = ref => {
@@ -55,8 +45,6 @@ export const handleHooks = req => {
   const body = JSON.parse(req.body);
   const type = req.headers['x-github-event'];
 
-  console.log('Github webhook - ', type);
-
   switch (type) {
     case 'push':
       handleCommit(body);
@@ -66,9 +54,6 @@ export const handleHooks = req => {
       break;
     case 'pull_request_review':
       handlePullRequestReview(body);
-      break;
-    case 'deployment_status':
-      console.log('handle deploy');
       break;
     default:
       console.log('unrecognized event');
