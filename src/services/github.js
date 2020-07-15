@@ -25,7 +25,7 @@ export const listCommits = async number => {
 };
 
 export const createHook = async () => {
-  const result = await octokit.repos.createHook({
+  await octokit.repos.createHook({
     owner: process.env.GITHUB_OWNER_NAME,
     repo: process.env.GITHUB_REPO_NAME,
     config: {
